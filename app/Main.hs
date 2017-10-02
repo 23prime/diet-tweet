@@ -17,23 +17,21 @@ import Tweet
 
 main :: IO ()
 main = do
-  withFile "./secrets.txt" ReadMode $ \handle -> do
+  withFile "./mezase65kg.txt" ReadMode $ \handle -> do
     keys <- hGetContents handle
-    tw' <- fromMaybe (error " not set") <$> lookupEnv "WEIGHT"
-    md <- fromMaybe (error " not set") <$> lookupEnv "MEDIA_UPLOAD_RES"
+    tw'  <- fromMaybe (error " not set") <$> lookupEnv "WEIGHT"
+    md   <- fromMaybe (error " not set") <$> lookupEnv "MEDIA_UPLOAD_RES"
     let
-      [o1, o2, a1, a2] = map (encodeUtf8 . T.pack) $ take 4 $ lines keys
+      [oauthConsumerKey, oauthConsumerSecret, accessToken, accessTokenSecret]
+        = map (encodeUtf8 . T.pack) $ take 4 $ lines keys
       myOAuth :: OAuth
       myOAuth = newOAuth
-        { oauthServerName     = "api.twitter.com"
-        , oauthConsumerKey    = o1
-        , oauthConsumerSecret = o2
-        }
+          { oauthServerName     = "api.twitter.com"
+          , oauthConsumerKey    = oauthConsumerKey
+          , oauthConsumerSecret = oauthConsumerSecret
+          }
       myCred :: Credential
       myCred = newCredential accessToken accessTokenSecret
-        where
-          accessToken       = a1
-          accessTokenSecret = a2
       tw = encodeUtf8 $ T.pack $ "#ok_diet\n\n" ++ tw' ++ " kg"
       mediaId = encodeUtf8 $ T.pack $ drop 12 $ take 30 md
     postWithMedia myOAuth myCred tw mediaId
